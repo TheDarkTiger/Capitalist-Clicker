@@ -7,13 +7,17 @@ import random
 import pygame
 import pygame.freetype
 
+# Draw text
+def draw_text( coords=(0,0), text="None", color=(255,0,255) ) :
+	textCanvas = font.render( str( text ), True, color )
+	screen.blit( textCanvas, coords )
+
 
 # Draw a task
 def draw_task( color=(255,0,255), y=30, value=0, advancement=0 ) :
 	# Icon
 	icon = pygame.draw.circle( screen, color, (30,y), 20,5 )
-	valueTextCanvas = font.render( str( value ), True, c_white )
-	screen.blit( valueTextCanvas, (16, y-10) )
+	draw_text( (16, y-10), str( value ), c_white )
 	
 	# Bar
 	pygame.draw.rect( screen, color, (70,y-15, 200,30) )
@@ -21,6 +25,14 @@ def draw_task( color=(255,0,255), y=30, value=0, advancement=0 ) :
 	pygame.draw.rect( screen, (0,0,0), (75+(190*pc),y-10, 190*(1-pc),20) )
 	
 	return icon
+
+
+# Draw a button
+def draw_button( coords=(0,0), text="None", color=(255,0,255), size=(50,30) ) :
+	button = pygame.draw.rect( screen, color, (coords, size) )
+	draw_text( coords, str( text ), c_white )
+	return button
+
 
 # Update a task
 def update_task( value=0, working=False, advancement=0, speed=0 ):
@@ -73,6 +85,12 @@ tasks["orange"] = {"color":c_orange, "y":180, "value":3, "working":False, "speed
 tasks["white"] = {"color":c_gray, "y":240, "value":4, "working":False, "speed":2, "advancement":0, "icon":None}
 tasks["purple"] = {"color":c_purple, "y":300, "value":5, "working":False, "speed":1, "advancement":0, "icon":None}
 
+managers = {}
+managers["green"] = {"owned":False, "cost":100, "buyButton":None}
+managers["red"] = {"owned":False, "cost":200, "buyButton":None}
+managers["orange"] = {"owned":False, "cost":300, "buyButton":None}
+managers["white"] = {"owned":False, "cost":400, "buyButton":None}
+managers["purple"] = {"owned":False, "cost":500, "buyButton":None}
 
 # Main
 
@@ -88,22 +106,54 @@ while running :
 			running = False
 		
 		if event.type == pygame.MOUSEBUTTONDOWN :
+			# Buy buttons
 			for task in tasks :
 				if tasks[task]["icon"] != None :
 					if tasks[task]["icon"].collidepoint( event.pos ) :
 						tasks[task]["working"] = True
+			# Managers buttons
+			for manager in managers :
+				if managers[manager]["buyButton"] != None :
+					if managers[manager]["buyButton"].collidepoint( event.pos ) :
+						if money >= managers[manager]["cost"] :
+							managers[manager]["owned"] = True
+			
 	
 	# Drawing
 	screen.fill( backgroundColor )
 	
+	# Tasks
 	for task in tasks :
 		t = tasks[task]
 		t["working"], t["advancement"] = update_task( t["value"], t["working"], t["advancement"], t["speed"] )
 		t["icon"] = draw_task( t["color"], t["y"], t["value"], t["advancement"] )
+		
+		if managers[task]["owned"] :
+			t["working"] = True
 	
-	valueTextCanvas = font.render( "Money "+str( money ), True, c_white )
-	screen.blit( valueTextCanvas, (10, 10) )
+	# Money
+	draw_text( (10, 10), "Money "+str( money ), c_white )
 	
+	# Managers buttons
+	x = 5
+	draw_text( (10,320), "Buy more", c_white )
+	draw_text( (10,385), "Buy managers", c_white )
+	for manager in managers :
+		m = managers[manager]
+		
+		draw_button( (x, 345), m["cost"], color=tasks[manager]["color"] )
+		
+		if not m["owned"] :
+			if money >= m["cost"] :
+				color = tasks[manager]["color"]
+			else :
+				color = c_dgray
+			
+			m["buyButton"] = draw_button( (x, 410), m["cost"], color )
+		
+		x += 55
+	
+	# Update display
 	pygame.display.flip()
 	
 	# Householding
