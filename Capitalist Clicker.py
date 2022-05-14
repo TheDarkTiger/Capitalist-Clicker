@@ -7,6 +7,17 @@ import random
 import pygame
 import pygame.freetype
 
+
+# Draw a task
+def draw_task( color=(255,0,255), y=30, value=0 ) :
+	pygame.draw.circle( screen, color, (30,y), 20,5 )
+	pygame.draw.rect( screen, color, (70,y-15, 200,30) )
+	pygame.draw.rect( screen, (0,0,0), (75,y-10, 190,20) )
+	
+	valueTextCanvas = font.render( str( value ), True, c_white )
+	screen.blit( valueTextCanvas, (16, y-10) )
+	
+
 # Pico8ish palette
 c_white = (255,255,255)
 c_gray = (191,191,191)
@@ -44,45 +55,29 @@ tasks["white"] = {"color":c_gray, "y":230, "value":4}
 tasks["purple"] = {"color":c_purple, "y":290, "value":5}
 
 
-# Draw a task
-def draw_task( color=(255,0,255), y=30, value=0 ) :
-	pygame.draw.circle( screen, color, (30,y), 20,5 )
-	pygame.draw.rect( screen, color, (70,y-15, 200,30) )
-	pygame.draw.rect( screen, (0,0,0), (75,y-10, 190,20) )
-	
-	valueTextCanvas = font.render( str( value ), True, c_white )
-	screen.blit( valueTextCanvas, (16, y-10) )
-	
-
 # Main
-def main() :
-		
-	# Set the game
-	backgroundColor = c_black
-	running = True
-	
-	while running :
-		
-		# Events
-		for event in pygame.event.get() :
-			if event.type == pygame.QUIT :
-				running = False
-		
-		# Drawing
-		screen.fill( backgroundColor )
-		
-		for task in tasks :
-			draw_task( tasks[task]["color"], tasks[task]["y"], tasks[task]["value"] )
-		
-		pygame.display.flip()
-		
-		# Householding
-		timer.tick( framerate )
-	
-	pygame.quit()
-	
 
-# run the main function only if this module is executed as the main script
-# Close to useless here, as the game will probably never be called as a submodule
-if __name__=="__main__":
-	main()
+# Set the game
+backgroundColor = c_black
+running = True
+
+while running :
+	
+	# Events
+	for event in pygame.event.get() :
+		if event.type == pygame.QUIT :
+			running = False
+	
+	# Drawing
+	screen.fill( backgroundColor )
+	
+	for task in tasks :
+		draw_task( tasks[task]["color"], tasks[task]["y"], tasks[task]["value"] )
+	
+	pygame.display.flip()
+	
+	# Householding
+	timer.tick( framerate )
+
+pygame.quit()
+
